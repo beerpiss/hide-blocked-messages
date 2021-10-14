@@ -1,0 +1,7 @@
+{
+    "name": "Hide Blocked Messages",
+    "author": "beerpsi",
+    "version": "0.0.1",
+    "license": "Unlicense",
+    "description": "Automatically hide messages from people you've blocked"
+}
