@@ -6,3 +6,6 @@ Optionally restore all hidden blocked indicators.
 `hideblocked <interval>` to hide messages every <interval> (Default is 500ms), interval too fast can degrade performance.
 
 `unhideblocked` to unhide all
+
+# Future projects
+![slimshadydev](https://i.imgur.com/Rd915Yw.png)
