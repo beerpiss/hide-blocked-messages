@@ -1,10 +1,10 @@
 const {Plugin} = require('powercord/entities')
-let hide_interval = null;
+const {FluxDispatcher} = require('powercord/webpack')
 module.exports = class hide_blocked extends Plugin {
     startPlugin(){
         powercord.api.commands.registerCommand({
             command: 'hideblocked',
-            description: 'Automatically hide blocked messages every interval (default 500ms)',
+            description: 'Automatically hide blocked messages',
             usage: '{c} <interval>',
             executor: (args) => start(args)
         });
@@ -20,16 +20,17 @@ module.exports = class hide_blocked extends Plugin {
     pluginWillUnload(){
         powercord.api.commands.unregisterCommand('hideblocked');
         powercord.api.commands.unregisterCommand('unhideblocked');
+        FluxDispatcher.unsubscribe("MESSAGE_CREATE", hideBlocked);
     }
 }
 
 function start(args){
-    if (args == "" || !Number.isFinite(args)) args = 500;
-    hide_interval = setInterval(hideBlocked, args);
+    hideBlocked();
+    FluxDispatcher.subscribe("MESSAGE_CREATE", hideBlocked)
 }
 
 function stop(){
-    clearInterval(hide_interval);
+    FluxDispatcher.unsubscribe("MESSAGE_CREATE", hideBlocked)
     unhideBlocked();
 }
 
