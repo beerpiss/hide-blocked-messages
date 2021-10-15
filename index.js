@@ -7,7 +7,7 @@
 //TODO: Save user settings between reloads
 
 const { Plugin } = require("powercord/entities");
-const { FluxDispatcher, React } = require("powercord/webpack");
+const { React } = require("powercord/webpack");
 const Settings = require("./Settings");
 
 module.exports = class hide_blocked extends Plugin {
@@ -35,12 +35,15 @@ module.exports = class hide_blocked extends Plugin {
         if (this.settings.get("auto-hide", true)){
             hideBlocked();
         }
+        
     }
 
     pluginWillUnload(){
         powercord.api.commands.unregisterCommand("hideblocked");
         powercord.api.commands.unregisterCommand("showblocked");
         powercord.api.settings.unregisterSettings("hide-blocked");
+
+        showBlocked();
     }
 }
 
