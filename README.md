@@ -6,6 +6,9 @@ Optionally restore all hidden blocked indicators.
 `hideblocked` to start hiding messages.
 
 `unhideblocked` to unhide all.
+# Credits
+Thanks to [pythonmcpi](https://github.com/pythonmcpi) for writing actually good code for hiding messages
 
+Thanks to the devs on Powercord server for pointing out my code was crap
 # Future projects
 ![slimshadydev](https://i.imgur.com/Rd915Yw.png)
