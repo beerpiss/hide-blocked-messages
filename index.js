@@ -16,14 +16,14 @@ module.exports = class hide_blocked extends Plugin {
             command: "hideblocked",
             description: "Automatically hide blocked messages",
             usage: "{c}",
-            executor: () => start()
+            executor: () => hideBlocked()
         });
 
         powercord.api.commands.registerCommand({
-            command: "unhideblocked",
-            description: "Unhide all blocked messages and stop hiding them automatically",
+            command: "showblocked",
+            description: "show all blocked messages and stop hiding them automatically",
             usage: "{c}",
-            executor: () => stop()
+            executor: () => showBlocked()
         });
 
         powercord.api.settings.registerSettings("hide-blocked", {
@@ -33,50 +33,26 @@ module.exports = class hide_blocked extends Plugin {
         });
 
         if (this.settings.get("auto-hide", true)){
-            start();
+            hideBlocked();
         }
     }
 
     pluginWillUnload(){
         powercord.api.commands.unregisterCommand("hideblocked");
-        powercord.api.commands.unregisterCommand("unhideblocked");
-        FluxDispatcher.unsubscribe("MESSAGE_CREATE", hideBlocked);
-        FluxDispatcher.unsubscribe("LOAD_MESSAGES_SUCCESS", hideBlocked);
-        FluxDispatcher.unsubscribe("RELATIONSHIP_UPDATE", hideBlocked);
+        powercord.api.commands.unregisterCommand("showblocked");
         powercord.api.settings.unregisterSettings("hide-blocked");
     }
 }
 
-/* Subscribes to three events most useful in auto-removal:
- * MESSAGE_CREATE: When a new message is posted, not necessarily yours.
- * LOAD_MESSAGES_SUCCESS: When a channel is fully loaded.
- * RELATIONSHIP_UPDATE: When your relationships (friends, blocking, etc.) is updated
- */
-function start(){
-    hideBlocked();
-    FluxDispatcher.subscribe("MESSAGE_CREATE", hideBlocked);
-    FluxDispatcher.subscribe("LOAD_MESSAGES_SUCCESS", hideBlocked);
-    FluxDispatcher.subscribe("RELATIONSHIP_UPDATE", hideBlocked);
+hideBlocked = () => { 
+    if (document.querySelector('#hide-blocked-messages-css')) return;
+    let style = document.createElement('style');
+    style.id = 'hide-blocked-messages-css';
+    style.innerHTML = '[class^="groupStart"] {display: none !important}'; // !important is probably unnecessary
+    document.head.appendChild(style);
 }
 
-
-function stop(){
-    FluxDispatcher.unsubscribe("MESSAGE_CREATE", hideBlocked);
-    FluxDispatcher.unsubscribe("LOAD_MESSAGES_SUCCESS", hideBlocked);
-    FluxDispatcher.unsubscribe("RELATIONSHIP_UPDATE", hideBlocked);
-    unhideBlocked();
+showBlocked = () => { 
+    document.querySelector('#hide-blocked-messages-css')?.remove() 
 }
 
-function hideBlocked(){
-    const blocked = document.querySelectorAll('[class^="groupStart"]'); // Find all "Blocked Messages"
-    blocked.forEach(blokMsg => {
-        if(blokMsg.style.display !== "none") blokMsg.style.display = "none"; // Hide the message if it's not already hidden.
-    });
-};
-
-function unhideBlocked(){
-    const blocked = document.querySelectorAll('[class^="groupStart"]');
-    blocked.forEach(blokMsg => {
-        if(blokMsg.style.display === "none") blokMsg.style.display = ""; // Unhide the messages if they were previously hidden.
-    });
-};
