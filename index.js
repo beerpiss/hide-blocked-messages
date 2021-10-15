@@ -1,19 +1,28 @@
+/* Removes the "x blocked messages - show messages" tag when you block someone on Discord.
+ * Does not use an interval; instead, subscribe to Flux events.
+ * For use as a Powercord plugin.
+ */
+
+//TODO: Maybe a nice settings page
+//TODO: Save user settings between reloads
+
 const {Plugin} = require('powercord/entities')
 const {FluxDispatcher} = require('powercord/webpack')
+
 module.exports = class hide_blocked extends Plugin {
     startPlugin(){
         powercord.api.commands.registerCommand({
             command: 'hideblocked',
             description: 'Automatically hide blocked messages',
-            usage: '{c} <interval>',
-            executor: (args) => start(args)
+            usage: '{c}',
+            executor: () => start()
         });
 
         powercord.api.commands.registerCommand({
             command: 'unhideblocked',
-            description: 'Unhide all blocked messages.',
+            description: 'Unhide all blocked messages and stop hiding them automatically',
             usage: '{c}',
-            executor: (args) => stop()
+            executor: () => stop()
         });
     }
     
@@ -21,16 +30,28 @@ module.exports = class hide_blocked extends Plugin {
         powercord.api.commands.unregisterCommand('hideblocked');
         powercord.api.commands.unregisterCommand('unhideblocked');
         FluxDispatcher.unsubscribe("MESSAGE_CREATE", hideBlocked);
+        FluxDispatcher.unsubscribe("LOAD_MESSAGES_SUCCESS", hideBlocked)
+        FluxDispatcher.unsubscribe("RELATIONSHIP_UPDATE", hideBlocked)
     }
 }
 
-function start(args){
+/* Subscribes to three events most useful in auto-removal:
+ * MESSAGE_CREATE: When a new message is posted, not necessarily yours.
+ * LOAD_MESSAGES_SUCCESS: When a channel is fully loaded.
+ * RELATIONSHIP_UPDATE: When your relationships (friends, blocking, etc.) is updated
+ */
+function start(){
     hideBlocked();
     FluxDispatcher.subscribe("MESSAGE_CREATE", hideBlocked)
+    FluxDispatcher.subscribe("LOAD_MESSAGES_SUCCESS", hideBlocked)
+    FluxDispatcher.subscribe("RELATIONSHIP_UPDATE", hideBlocked)
 }
+
 
 function stop(){
     FluxDispatcher.unsubscribe("MESSAGE_CREATE", hideBlocked)
+    FluxDispatcher.unsubscribe("LOAD_MESSAGES_SUCCESS", hideBlocked)
+    FluxDispatcher.unsubscribe("RELATIONSHIP_UPDATE", hideBlocked)
     unhideBlocked();
 }
 
