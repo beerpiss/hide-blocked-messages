@@ -1,7 +1,7 @@
 {
     "name": "Hide Blocked Messages",
     "author": "beerpsi as extradummythicc",
-    "version": "0.0.2",
+    "version": "0.1.0",
     "license": "0BSD License",
     "description": "Automatically hide messages from people you've blocked"
 }
